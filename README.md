@@ -107,4 +107,26 @@ All models were evaluated on the **test dataset** using the same metrics. Result
 
 **Observed performance trend:**
 
+##Resunet>Unet>deeplab
+---
+
+## 🖼️ Visualization
+
+The following visualizations were generated:
+
+- Original MRI images  
+- Ground truth tumor masks  
+- Predicted segmentation masks  
+- Overlay of predictions on MRI images  
+
+---
+
+## ▶️ How to Run
+
+1. Open the notebook in **Google Colab**  
+2. Mount Google Drive  
+3. Set dataset path:
+   ```python
+   DATASET_PATH = "/content/drive/MyDrive/kaggle_3m"
+4.run all cells sequentially
 
