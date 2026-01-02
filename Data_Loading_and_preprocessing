@@ -92,3 +92,18 @@ print(f"X_val: {X_val.shape}, y_val: {y_val.shape}")
 print(f"X_test: {X_test.shape}, y_test: {y_test.shape}") 
 
 ##Output
+Loading and preprocessing brain MRI data...
+Loading first 40 folders...
+Processed 10/40 folders
+Processed 20/40 folders
+Processed 30/40 folders
+Processed 40/40 folders
+Dataset split:
+Training: 1000 samples
+Validation: 215 samples
+Test: 215 samples
+
+Final dataset shapes:
+X_train: (1000, 128, 128, 3), y_train: (1000, 128, 128, 1)
+X_val: (215, 128, 128, 3), y_val: (215, 128, 128, 1)
+X_test: (215, 128, 128, 3), y_test: (215, 128, 128, 1)
