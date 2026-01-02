@@ -1,0 +1,94 @@
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import pandas as pd
+from tensorflow.keras.models import Model
+
+dataset_path = "/content/drive/MyDrive/kaggle_3m"
+
+def load_brain_mri_data(dataset_path, num_folders=40, img_size=(128, 128)):
+    """
+    Load and preprocess brain MRI data in one function
+    """
+    images = []
+    masks = []
+    filenames = []
+
+    print(f"Loading first {num_folders} folders...")
+    patient_folders = sorted(os.listdir(dataset_path))[:num_folders]
+
+    for i, folder in enumerate(patient_folders):
+        folder_path = os.path.join(dataset_path, folder)
+
+        if os.path.isdir(folder_path):
+            files = sorted(os.listdir(folder_path))
+            image_files = [f for f in files if not f.endswith('_mask.tif') and f.endswith('.tif')]
+
+            for img_file in image_files:
+                mask_file = img_file.replace('.tif', '_mask.tif')
+
+                if mask_file in files:
+                    # Load and preprocess image
+                    img_path = os.path.join(folder_path, img_file)
+                    image = cv2.imread(img_path)
+                    image = cv2.resize(image, img_size)
+                    image = image.astype('float32') / 255.0
+
+                    # Load and preprocess mask
+                    mask_path = os.path.join(folder_path, mask_file)
+                    mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+                    mask = cv2.resize(mask, img_size)
+                    mask = (mask > 128).astype('float32')
+                    mask = np.expand_dims(mask, axis=-1)
+
+                    images.append(image)
+                    masks.append(mask)
+                    filenames.append(f"{folder}/{img_file}")
+
+        if (i + 1) % 10 == 0:
+            print(f"Processed {i + 1}/{num_folders} folders")
+
+    return np.array(images), np.array(masks), filenames
+
+def split_dataset(images, masks, filenames, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
+    """
+    Split dataset into train, validation, and test sets
+    """
+    # First split: separate train+val from test
+    X_temp, X_test, y_temp, y_test, names_temp, names_test = train_test_split(
+        images, masks, filenames, test_size=test_ratio, random_state=42
+    )
+
+    # Second split: separate train from val
+    val_size = val_ratio / (train_ratio + val_ratio)
+    X_train, X_val, y_train, y_val, names_train, names_val = train_test_split(
+        X_temp, y_temp, names_temp, test_size=val_size, random_state=42
+    )
+
+    print(f"Dataset split:")
+    print(f"Training: {len(X_train)} samples")
+    print(f"Validation: {len(X_val)} samples")
+    print(f"Test: {len(X_test)} samples")
+
+    return (X_train, y_train), (X_val, y_val), (X_test, y_test)
+
+
+# Load and preprocess data
+print("Loading and preprocessing brain MRI data...")
+images, masks, filenames = load_brain_mri_data(dataset_path, num_folders=40)
+
+# Split the dataset
+(X_train, y_train), (X_val, y_val), (X_test, y_test) = split_dataset(images, masks, filenames)
+
+print(f"\nFinal dataset shapes:")
+print(f"X_train: {X_train.shape}, y_train: {y_train.shape}")
+print(f"X_val: {X_val.shape}, y_val: {y_val.shape}")
+print(f"X_test: {X_test.shape}, y_test: {y_test.shape}") 
+
+##Output
